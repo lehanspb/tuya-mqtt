@@ -12,10 +12,7 @@ Using this script requires obtaining the device ID and local keys for each of yo
 
 To acquire keys for your device please see the instructions at the TuyAPI project (on which this script is based) available at the [TuyAPI GitHub site](https://github.com/codetheweb/tuyapi/blob/master/docs/SETUP.md).
 
-**Acquiring device keys is outside the scope of this project!** Issues opened regarding acquiring keys will likely be closed without comment. Please verify that your device can be queried and controlled via tuya-cli before opening any issue.  If your device can't be controlled by tuya-cli then it cannot be used with this project.
-
-**!!!!!!!!!! Important information regarding the 3.0 release !!!!!!!!!!**\
-The 3.0.0 release (Oct 17th, 2020) is a major refactor of the tuya-mqtt project and, as such, is a breaking release for all users of previous versions.  Almost everything about the project is different, including configuration method, topic names, etc.  Upgrading users should carefully read the instructions below and assume they are starting over from scratch.
+**Acquiring device keys is outside the scope of this project!** Issues opened regarding acquiring keys will likely be closed without comment. Please verify that your device can be queried and controlled via tuya-cli before opening any issue. If your device can't be controlled by tuya-cli then it cannot be used with this project.
 
 ## Installation
 Download this project to your system into any directory (example below uses /opt/tuya-mqtt) and install tuyapi from the same folder that the tuya-mqtt.js is in
@@ -24,7 +21,7 @@ Download this project to your system into any directory (example below uses /opt
 cd /opt
 
 // clone this project
-git clone https://github.com/TheAgentK/tuya-mqtt
+git clone https://github.com/lehanspb/tuya-mqtt
 
 // change directory to the project directory
 cd tuya-mqtt
@@ -51,19 +48,33 @@ If you use the "tuya-cli wizard" method to acquire your device keys you can leve
 [
   {
     name: 'Tuya Device 1',
+    version: '3.3',
+    ip: '192.168.20.251',
     id: '86435357d8b123456789',
     key: '8b2a69c9876543210'
   },
   {
     name: 'Tuya Device 2',
+    version: '3.3',
+    ip: '192.168.20.252',
     id: 'eb532eea7d12345678abc',
-    key: '899810012345678'
+    key: '899810012345678',
+    subDevices:
+    [ { name: 'subdevice1',
+        id: 'zt431eda8d12345678awc',
+        cid: '1a24fkfffe6b4e24'
+      },
+      { name: 'subdevice1',
+        id: 'rb737qea7v15342678aq3',
+        cid: '1a24fkfffe0t2c29'
+      }
+    ]     
   }
 ]
 ```
 Note that, because the format is JSON5, which is a superset of JSON, you can use standard, strict JSON syntax, or the more forgiving JSON5 format, or even mix and match in the same file.
 
-By default tuya-mqtt will attempt to find the device and automatically detect the Tuya protocol version, however, this only works if the system running tuya-mqtt is on the same network/subnet as the devices being controlled.  If this is not the case, or if automatic detection fails for some other reason, it is possible to specify the IP address and protocol manually by adding the "ip:" property to the devices.conf file.  Note that if the IP address is specified manually it is required to also manually specify the protocol version using the "version:" parameter as either "3.1" or "3.3".  The easiest way to determine the protocol version is to try controlling the device with tuya-cli and try each version to see which one works.
+By default tuya-mqtt will attempt to find the device and automatically detect the Tuya protocol version, however, this only works if the system running tuya-mqtt is on the same network/subnet as the devices being controlled. If this is not the case, or if automatic detection fails for some other reason, it is possible to specify the IP address and protocol manually by adding the "ip:" property to the devices.conf file. Note that if the IP address is specified manually it is required to also manually specify the protocol version using the "version:" parameter as either "3.1" or "3.3". The easiest way to determine the protocol version is to try controlling the device with tuya-cli and try each version to see which one works.
 
 While the above syntax may be enough to create a working tuya-mqtt install with raw DPS values accessible via DPS topics, the full functionality of tuya-mqtt 3.0 is only unlocked by configuring device types to get.  Please see the full [DEVICES](docs/DEVICES.md) documentation for details.
 
@@ -74,6 +85,9 @@ node tuya-mqtt.js
 To enable debugging output (required when opening an issue):
 ```
 DEBUG=tuya-mqtt:* tuya-mqtt.js
+or
+DEBUG=* tuya-mqtt.js
+for full debugging
 ```
 
 ### Updating devices.conf with new and/or changed devices:
@@ -144,18 +158,7 @@ openHAB examples are [here](docs/openHAB.md).
 
 ## Contributors
 - [TheAgentK](https://github.com/TheAgentK)
-- [tsightler](https://github.com/tsightler)
-- [Tycale](https://github.com/Tycale)
-- [crashdummymch](https://github.com/crashdummymch)
-- [GadgetAngel](https://github.com/GadgetAngel)
-- [dkrahmer](https://github.com/dkrahmer)
 
 ## Related Projects:
 - https://github.com/codetheweb/tuyapi
-- https://github.com/unparagoned/njsTuya
-- https://github.com/clach04/python-tuya
-- https://github.com/Marcus-L/m4rcus.TuyaCore
-- Specs: https://docs.tuya.com/en/cloudapi/cloud_access.html
 
-[![forthebadge](https://forthebadge.com/images/badges/made-with-javascript.svg)](https://forthebadge.com)
-[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
