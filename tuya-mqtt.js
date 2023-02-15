@@ -31,6 +31,7 @@ async function processExit(exitCode) {
 }
 
 // Get new deivce based on configured type
+// For Tuya Gateway use GenericDevice
 function getDevice(configDevice, mqttClient) {
     const deviceInfo = {
         configDevice: configDevice,
