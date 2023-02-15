@@ -113,13 +113,14 @@ Just create file /etc/systemd/system/tuya-mqtt.service
  
  [Install]
  WantedBy=multi-user.target
+
  ```
 
 Enable and run:
 ```
  systemctl enable tuya-mqtt.service
  systemctl start tuya-mqtt
-``
+```
 
 
 ### Updating devices.conf with new and/or changed devices:
