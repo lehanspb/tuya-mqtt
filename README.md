@@ -157,6 +157,7 @@ In addition to the DPS Key topics, it's possible to use the DPS for devices behi
 
 This example demostrates DPS values and commands for Tuya Smart Thermostat Radiator Valve behind Tuya Gateway:
 
+```
 Thermostat mode:
 tuya/zgw1/1a24fkfffe6b4e24/dsp/4/state    --> {"4":"auto"}
 Possible values: auto/temp_auto/holiday/manual/comfort/eco/BOOST
@@ -175,13 +176,13 @@ Valve percent:
 tuya/zgw1/1a24fkfffe6b4e24/dps/109/state           --> {"109": 30}
 Where 30 - 30%
 tuya/zgw1/dps/command                              <-- {"dps": 109, "set": 40, "cid": "1a24fkfffe6b4e24"}
-
+```
 
 ## Issues
 Not all Tuya protocols are supported.  For example, some devices use protocol 3.2 which currently remains unsupported by the TuyAPI project due to lack of enough information to reverse engineer the protocol.  If you are unable to control your devices with tuya-mqtt please verify that you can query and control them with tuya-cli first.  If tuya-cli works, then this script should also work, if it doesn't then this script will not work either.
 
-## Integration with other Home Automation tools
-openHAB examples are [here](docs/openHAB.md).
+## Integration with openHAB
+openHAB 3.x examples are [here](docs/openHAB.md).
 
 ## Contributors
 - [TheAgentK](https://github.com/TheAgentK)

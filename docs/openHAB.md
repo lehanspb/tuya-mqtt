@@ -1,6 +1,3 @@
-:exclamation: There is a greate Step-By-Step guide from user HolgiHab at openhab community ([Step-By-Step Guide](
-https://community.openhab.org/t/step-by-step-guide-for-adding-tuya-bulbs-smart-life-to-oh2-using-tuya-mqtt-js-by-agentk/59371)). This guide is not only for light bulbs, but also applies to sockets. :exclamation:
-
 ## Example items for OpenHAB 3.x Bindings
 
 ### Tuya Smart Thermostat Radiator Valve behind Tuya Gateway
