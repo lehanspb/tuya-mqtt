@@ -159,23 +159,23 @@ This example demostrates DPS values and commands for Tuya Smart Thermostat Radia
 
 ```
 Thermostat mode:
-tuya/zgw1/1a24fkfffe6b4e24/dsp/4/state    --> {"4":"auto"}
+tuya/zgw1/1a24fkfffe6b4e24/dsp/4/state      --> {"4":"auto"}
 Possible values: auto/temp_auto/holiday/manual/comfort/eco/BOOST
-tuya/zgw1/dps/command                              <-- {"dps": 4, "set": 4, "cid": "1a24fkfffe6b4e24"}
+tuya/zgw1/dps/command                       <-- {"dps": 4, "set": 4, "cid": "1a24fkfffe6b4e24"}
 
 Temperature Setpoint:
-tuya/zgw1/1a24fkfffe6b4e24/dps/2/state             --> {"2": 220}
+tuya/zgw1/1a24fkfffe6b4e24/dps/2/state      --> {"2": 220}
 Where 220 - 22.0 Celsius
-tuya/zgw1/dps/command                              <-- {"dps": 2, "set": 220, "cid": "1a24fkfffe6b4e24"}
+tuya/zgw1/dps/command                       <-- {"dps": 2, "set": 220, "cid": "1a24fkfffe6b4e24"}
 
 Current Temperature:
-tuya/zgw1/1a24fkfffe6b4e24/dps/3/state             --> {"3": 225}
+tuya/zgw1/1a24fkfffe6b4e24/dps/3/state      --> {"3": 225}
 Where 225 - 22.5 Celsius
 
 Valve percent:
-tuya/zgw1/1a24fkfffe6b4e24/dps/109/state           --> {"109": 30}
+tuya/zgw1/1a24fkfffe6b4e24/dps/109/state    --> {"109": 30}
 Where 30 - 30%
-tuya/zgw1/dps/command                              <-- {"dps": 109, "set": 40, "cid": "1a24fkfffe6b4e24"}
+tuya/zgw1/dps/command                       <-- {"dps": 109, "set": 40, "cid": "1a24fkfffe6b4e24"}
 ```
 
 ## Issues
