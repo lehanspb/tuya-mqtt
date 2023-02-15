@@ -3,7 +3,9 @@
 # Note
 
 I'm not a developer and I'm new to nodejs.
+
 I just need to get data from Zigbee devices behind Tuya Wireless Gateway and the ability to control them using MQTT commands.
+
 I forked this repository [TheAgentK](https://github.com/TheAgentK/tuya-mqtt) and made some changes.
 
 # About
@@ -186,6 +188,7 @@ openHAB 3.x examples are [here](docs/openHAB.md).
 
 ## Contributors
 - [TheAgentK](https://github.com/TheAgentK)
+- [lehanspb](https://github.com/lehanspb)
 
 ## Related Projects:
 - https://github.com/codetheweb/tuyapi
