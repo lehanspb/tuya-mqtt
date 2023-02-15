@@ -1,8 +1,8 @@
 {
   "name": "tuya-mqtt",
-  "version": "3.0.4",
+  "version": "3.1.4",
   "description": "Control Tuya devices locally via MQTT",
-  "homepage": "https://github.com/TheAgentK/tuya-mqtt#readme",
+  "homepage": "https://github.com/lehanspb/tuya-mqtt#readme",
   "main": "tuya-mqtt.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,11 +19,11 @@
     "json5": "^2.1.3",
     "mqtt": "^4.2.6",
     "supports-color": "^8.1.0",
-    "tuyapi": "^6.1.4",
+    "tuyapi": "^7.5.1",
     "mathjs": "8.1.1"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/TheAgentK/tuya-mqtt.git"
+    "url": "git://github.com/lehanspb/tuya-mqtt.git"
   }
 }
