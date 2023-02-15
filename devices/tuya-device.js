@@ -37,6 +37,7 @@ class TuyaDevice {
 
         // Initialize properties to hold cached device state data
         this.dps = {}
+        this.cid = {}
         this.color = {'h': 0, 's': 0, 'b': 0}
 
         // Device friendly topics
@@ -56,10 +57,32 @@ class TuyaDevice {
         // Create the new Tuya Device
         this.device = new TuyAPI(JSON.parse(JSON.stringify(this.options)))
 
+        // Some new devices don't send data updates if the app isn't open.
+        // These devices need to be "forced" to send updates. You can do so by calling refresh() (see tuyapi docs), which will emit a dp-refresh event.
+        this.device.on('dp-refresh', (data) => {
+            if (typeof data === 'object') {
+                if (data.cid) {
+                    debug('Received dp-refresh data from device '+this.options.id+' cid: '+data.cid+' ->', JSON.stringify(data.dps))
+                } else {
+                    debug('Received dp-refresh data from device '+this.options.id+' ->', JSON.stringify(data.dps))
+                }
+                this.updateState(data)
+            } else {
+                if (data !== 'json obj data unvalid') {
+                    debug('Received string data from device '+this.options.id+' ->', data.replace(/[^a-zA-Z0-9 ]/g, ''))
+                }
+            }
+        })
+
         // Listen for device data and call update DPS function if valid
         this.device.on('data', (data) => {
             if (typeof data === 'object') {
-                debug('Received JSON data from device '+this.options.id+' ->', JSON.stringify(data.dps))
+                if (data.cid) {
+                    debug('Received JSON data from device '+this.options.id+' cid: '+data.cid+' ->', JSON.stringify(data.dps))
+                } else {
+                    debug('Received JSON data from device '+this.options.id+' ->', JSON.stringify(data.dps))
+                    debug('Received JSON data from device '+this.options.id+' ->', JSON.stringify(data))
+                }
                 this.updateState(data)
             } else {
                 if (data !== 'json obj data unvalid') {
@@ -148,6 +171,8 @@ class TuyaDevice {
                     }
                 }
             }
+            let cid = data.cid
+            this.cid = cid
             if (this.connected) {
                 this.publishTopics()
             }
@@ -167,7 +192,12 @@ class TuyaDevice {
             if (this.dps[key] && this.dps[key].updated) {
                 const state = this.getTopicState(deviceTopic, this.dps[key].val)
                 if (state) { 
-                    this.publishMqtt(this.baseTopic + topic, state, true)
+                    // this.publishMqtt(this.baseTopic + topic, state, true)
+                    if (this.cid) {
+                        this.publishMqtt(this.baseTopic + cid + '/' + topic, state, true)
+                    } else {
+                        this.publishMqtt(this.baseTopic + topic, state, true)
+                    }
                 }
             }
         }
@@ -181,7 +211,12 @@ class TuyaDevice {
         try {
             if (!Object.keys(this.dps).length) { return }
 
-            const dpsTopic = this.baseTopic + 'dps'
+            let dpsTopic
+            if (this.cid) {
+                dpsTopic = this.baseTopic + this.cid + '/dps'
+            } else {
+                dpsTopic = this.baseTopic + 'dps'
+            }
             // Publish DPS JSON data if not empty
             let data = {}
             for (let key in this.dps) {
@@ -196,6 +231,7 @@ class TuyaDevice {
             this.publishMqtt(dpsStateTopic, data, false)
 
             // Publish dps/<#>/state value for each device DPS
+            // or cid/dps/<#>/state if cid exists
             for (let key in this.dps) {
                 // Only publish values if different from previous value
                 if (this.dps[key].updated) {
