@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.1.0]
+Forked from https://github.com/TheAgentK/tuya-mqtt
+### Added
+- Added support for Zigdee subdevices for Tuya Wireless Gateway
+- Added new dp-refresh funtion according to tuyapi documentation
+- Command and state topics for DPS keys for subdevices
+
+### Changed
+- Updated some libraries to latest version
+
+
 ## [3.0.0]
 The 3.0.0 release is a major refactor of the project with significant changes from previous version.  Only major additions and changes are listed below.
 ### Added
