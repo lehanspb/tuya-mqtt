@@ -1,14 +1,15 @@
 # tuya-mqtt
 
-# !!!! Important Note !!!!
-This project is currently in maintainance mode.  No further enhancements to this project are planned and will not be planned for the future unless someone out there is interested in becoming the new maintainer.  Please do not open issues to request new features, new device support, etc, as they will likely be closed with no comment.  I will try to support existing functionality, but even this will likely be on a very limited basis.  If you are interested in maintaining this project, please post [here](https://github.com/rospogrigio/localtuya/issues/194).
+# Note
 
-I have decided to step away from this project as I've made the personal decision to rid myself of any Tuya Wifi based devices (I'm down to only 4 at this point, and they are all easy to replace or at least flash with Tasmota).  This decision was made due to the fact that Tuya continues to make it more and more difficult to control their devices locally.  While I don't blame them for this, these devices were only interesting to me because of this local control and thus I can no longer meet my personal goals with Tuya devices (at least the Wifi ones) so I will no longer be purchasing/using them going forward.
+I'm not a developer and I'm new to nodejs.
+I just need to get data from Zigbee devices behind Tuya Wireless Gateway and the ability to control them using MQTT commands.
+I forked this repository [TheAgentK](https://github.com/TheAgentK/tuya-mqtt) and made some changes.
 
 # About
-This project is a bridge that allows locally controlling IOT devices manufactured by Tuya Inc., and sold under many different brands, via simple MQTT topics.  It effectively translate the Tuya protocol to easy to use topics.
+This project is a bridge that allows locally controlling IOT devices manufactured by Tuya Inc., and sold under many different brands, via simple MQTT topics. It effectively translate the Tuya protocol to easy to use topics.
 
-Using this script requires obtaining the device ID and local keys for each of your devices after they are configured via the Tuya/Smart Life or other Tuya compatible app (there are many).  With this information it is possible to communicate locally with Tuya devices using Tuya protocol version 3.1 and 3.3 without using the Tuya Cloud service, however, getting the keys requires signing up for a Tuya IOT developer account or using one of several other alternative methods (such as dumping the memory of a Tuya based app running on Android).
+Using this script requires obtaining the device ID and local keys for each of your devices after they are configured via the Tuya/Smart Life or other Tuya compatible app (there are many). With this information it is possible to communicate locally with Tuya devices using Tuya protocol version 3.1 and 3.3 without using the Tuya Cloud service, however, getting the keys requires signing up for a Tuya IOT developer account or using one of several other alternative methods (such as dumping the memory of a Tuya based app running on Android).
 
 To acquire keys for your device please see the instructions at the TuyAPI project (on which this script is based) available at the [TuyAPI GitHub site](https://github.com/codetheweb/tuyapi/blob/master/docs/SETUP.md).
 
@@ -131,16 +132,16 @@ Another advantage of friendly topics is that not all devices respond to schema r
 For more details on using friendly topics, please read the [DEVICES](docs/DEVICES.md) documentation which discusses how to configure supported devices or define a custom template.
 
 ## DPS Topics
-Controlling devices directly via DPS topics requires enough knowledge of the device to know which topics accept what values.  Described below are two different methods for interfacing with DPS values, the JSON DPS topic, and the individual DPS key topics.
+Controlling devices directly via DPS topics requires enough knowledge of the device to know which topics accept what values. Described below are two different methods for interfacing with DPS values, the JSON DPS topic, and the individual DPS key topics.
 
 ### DPS JSON topic
-The JSON DPS topic allows controlling Tuya devices by sending Tuya native style JSON messages to the command topic, and by monitoring for Tuya style JSON replies on the state topic.  You can get more details on this format by reading the [TuyAPI documentation](https://codetheweb.github.io/tuyapi/index.html), but, for example, to turn off a dimmer switch you could issue a MQTT message containing the JSON value ```{dps: 1, set: false}``` to the DPS/command topic for the device.  If you wanted to turn the dimmer on, and set brightness to 50%, you could issue separate messages ```{dps: 1, set: true}``` and then ```{dps: 2, set: 128}```, or, the Tuya JSON protocol also allows setting multiple values in a single set command using the format ```{'multiple': true, 'data': {'1': true, '2': 128}}```.  JSON state and commands should use the DPS/state and DPS/command topics respectively.  Below is an example of the topics:
+The JSON DPS topic allows controlling Tuya devices by sending Tuya native style JSON messages to the command topic, and by monitoring for Tuya style JSON replies on the state topic. You can get more details on this format by reading the [TuyAPI documentation](https://codetheweb.github.io/tuyapi/index.html), but, for example, to turn off a dimmer switch you could issue a MQTT message containing the JSON value ```{dps: 1, set: false}``` to the DPS/command topic for the device.  If you wanted to turn the dimmer on, and set brightness to 50%, you could issue separate messages ```{dps: 1, set: true}``` and then ```{dps: 2, set: 128}```, or, the Tuya JSON protocol also allows setting multiple values in a single set command using the format ```{'multiple': true, 'data': {'1': true, '2': 128}}```.  JSON state and commands should use the DPS/state and DPS/command topics respectively.  Below is an example of the topics:
 ```
 tuya/dimmer_device/DPS/state
 tuya/dimmer_device/DPS/command
 ```
 ### DPS Key topics
-In addition to the JSON DPS topic, it's also possible to use the DPS key topics.  DPS key topics allow you to monitor and send simple bool/number/string values directly to DPS keys without having to use the Tuya JSON format, the conversion to Tuya JSON is handled by tuya-mqtt.  Using the example from above, turning on the dimmer and setting brightness to 50% you would simply issue the message "true" to DPS/1/command and the message "128" to DPS/2/command.
+In addition to the JSON DPS topic, it's also possible to use the DPS key topics. DPS key topics allow you to monitor and send simple bool/number/string values directly to DPS keys without having to use the Tuya JSON format, the conversion to Tuya JSON is handled by tuya-mqtt.  Using the example from above, turning on the dimmer and setting brightness to 50% you would simply issue the message "true" to DPS/1/command and the message "128" to DPS/2/command.
 ```
 tuya/dimmer_device/DPS/1/state    --> true/false for on/off state
 tuya/dimmer_device/DPS/2/command  <-- 1-255 for brightness state
@@ -149,6 +150,32 @@ tuya/dimmer_device/DPS/2/command  <-- accepts 1-255 for controlling brightness l
 ```
 **!!! Important Note !!!**
 When sending commands directly to DPS values there are no limitation on what values are sent as tuya-mqtt has no way to know what are valid vs invalid for any given DPS key.  Sending values that are out-of-range or of different types than the DPS key expects can cause unpredictable behavior of your device, from causing timeouts, to reboots, to hanging the device.  While I've never seen a device fail to recover after a restart, please keep this in mind when sending commands to your device.
+
+## DPS Topics for devices behind Tuya Gateway
+In addition to the DPS Key topics, it's possible to use the DPS for devices behind Tuya Gateway.
+'cid' - is the subdevice id.
+
+This example demostrates DPS values and commands for Tuya Smart Thermostat Radiator Valve behind Tuya Gateway:
+
+Thermostat mode:
+tuya/zgw1/1a24fkfffe6b4e24/dsp/4/state    --> {"4":"auto"}
+Possible values: auto/temp_auto/holiday/manual/comfort/eco/BOOST
+tuya/zgw1/dps/command                              <-- {"dps": 4, "set": 4, "cid": "1a24fkfffe6b4e24"}
+
+Temperature Setpoint:
+tuya/zgw1/1a24fkfffe6b4e24/dps/2/state             --> {"2": 220}
+Where 220 - 22.0 Celsius
+tuya/zgw1/dps/command                              <-- {"dps": 2, "set": 220, "cid": "1a24fkfffe6b4e24"}
+
+Current Temperature:
+tuya/zgw1/1a24fkfffe6b4e24/dps/3/state             --> {"3": 225}
+Where 225 - 22.5 Celsius
+
+Valve percent:
+tuya/zgw1/1a24fkfffe6b4e24/dps/109/state           --> {"109": 30}
+Where 30 - 30%
+tuya/zgw1/dps/command                              <-- {"dps": 109, "set": 40, "cid": "1a24fkfffe6b4e24"}
+
 
 ## Issues
 Not all Tuya protocols are supported.  For example, some devices use protocol 3.2 which currently remains unsupported by the TuyAPI project due to lack of enough information to reverse engineer the protocol.  If you are unable to control your devices with tuya-mqtt please verify that you can query and control them with tuya-cli first.  If tuya-cli works, then this script should also work, if it doesn't then this script will not work either.
