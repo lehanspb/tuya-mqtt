@@ -93,6 +93,35 @@ DEBUG=* tuya-mqtt.js
 for full debugging
 ```
 
+### Systemd script for Debian-like OS
+
+Just create file /etc/systemd/system/tuya-mqtt.service
+
+```
+[Unit]
+ Description=tuya-mqtt
+ After=network.target
+  
+ [Service]
+ ExecStart=/usr/bin/node /opt/tuya-mqtt/tuya-mqtt.js
+ Restart=always
+ User=openhab
+ Group=openhab
+ Environment=PATH=/usr/bin/
+ Environment=NODE_ENV=production
+ WorkingDirectory=/opt/tuya-mqtt/
+ 
+ [Install]
+ WantedBy=multi-user.target
+ ```
+
+Enable and run:
+```
+ systemctl enable tuya-mqtt.service
+ systemctl start tuya-mqtt
+``
+
+
 ### Updating devices.conf with new and/or changed devices:
 After adding or changing devices to your Tuya account the devices.conf file can be automatically updated with all new devices and name/key changes by using the merge-devices.js script.  Create a file named new-devices.conf with the new "tuya-cli wizard" output then run ```node merge-devices.js```.  A dated backup of the original devices.conf file will be created automatically before changes are made.  Devices are only added and updated, never removed.  The resulting devices.conf file will be neatly formatted and sorted alphabetically by device name.
 
