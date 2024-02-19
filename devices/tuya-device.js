@@ -11,13 +11,14 @@ class TuyaDevice {
         this.config = deviceInfo.configDevice
         this.mqttClient = deviceInfo.mqttClient
         this.topic = deviceInfo.topic
-
+        
         // Build TuyAPI device options from device config info
         this.options = {
             id: this.config.id,
             key: this.config.key
         }
         if (this.config.name) { this.options.name = this.config.name.toLowerCase().replace(/\s|\+|#|\//g,'_') }
+
         if (this.config.ip) { 
             this.options.ip = this.config.ip
             if (this.config.version) {
@@ -26,6 +27,9 @@ class TuyaDevice {
                 this.options.version = '3.1'
             }
         }
+
+        debug('   ############ Config ', JSON.stringify(this.config))
+        debug('   ############ Options ', JSON.stringify(this.options))
 
         // Set default device data for Home Assistant device registry
         // Values may be overridden by individual devices
@@ -57,14 +61,13 @@ class TuyaDevice {
         // Create the new Tuya Device
         this.device = new TuyAPI(JSON.parse(JSON.stringify(this.options)))
 
-        // Some new devices don't send data updates if the app isn't open.
-        // These devices need to be "forced" to send updates. You can do so by calling refresh() (see tuyapi docs), which will emit a dp-refresh event.
         this.device.on('dp-refresh', (data) => {
             if (typeof data === 'object') {
                 if (data.cid) {
                     debug('Received dp-refresh data from device '+this.options.id+' cid: '+data.cid+' ->', JSON.stringify(data.dps))
                 } else {
                     debug('Received dp-refresh data from device '+this.options.id+' ->', JSON.stringify(data.dps))
+                    debug('Received dp-refresh data from device '+this.options.id+' ->', JSON.stringify(data))
                 }
                 this.updateState(data)
             } else {
@@ -173,16 +176,25 @@ class TuyaDevice {
             }
             let cid = data.cid
             this.cid = cid
-            if (this.connected) {
-                this.publishTopics()
-            }
+
+            // Had to comment this out 2024.02.19
+            // New Tuya multimode gateway (zigbee & ble) don't send connected state from BLE-devices
+            // if (this.connected) {
+            //     this.publishTopics()
+            // }
+            this.publishTopics()
+        } else {
+            debug('Could not updateState ' + JSON.stringify(data))
         }
     }
 
     // Publish device specific state topics
     publishTopics() {
         // Don't publish if device is not connected
-        if (!this.connected) return
+
+        // Had to comment it out 2024.02.19
+        // New Tuya multimode gateway (zigbee & ble) don't send connected state from BLE-devices
+        // if (!this.connected) return
 
         // Loop through and publish all device specific topics
         for (let topic in this.deviceTopics) {
@@ -192,9 +204,11 @@ class TuyaDevice {
             if (this.dps[key] && this.dps[key].updated) {
                 const state = this.getTopicState(deviceTopic, this.dps[key].val)
                 if (state) { 
-                    // this.publishMqtt(this.baseTopic + topic, state, true)
                     if (this.cid) {
-                        this.publishMqtt(this.baseTopic + cid + '/' + topic, state, true)
+                        // this.publishMqtt(this.baseTopic + cid + '/' + topic, state, true)
+                        // Change cid to cidname
+                        let cidname = this.config.subDevices.find(el => el.cid === this.cid);
+                        this.publishMqtt(this.baseTopic + cidname.name + '/' + topic, state, true)
                     } else {
                         this.publishMqtt(this.baseTopic + topic, state, true)
                     }
@@ -213,10 +227,16 @@ class TuyaDevice {
 
             let dpsTopic
             if (this.cid) {
-                dpsTopic = this.baseTopic + this.cid + '/dps'
+                // dpsTopic = this.baseTopic + this.cid + '/dps'
+                // Change cid to cidname
+                let cidname = this.config.subDevices.find(el => el.cid === this.cid);
+                dpsTopic = this.baseTopic + cidname.name + '/dps'
             } else {
                 dpsTopic = this.baseTopic + 'dps'
             }
+             
+            // const dpsTopic = this.baseTopic + 'dps'
+
             // Publish DPS JSON data if not empty
             let data = {}
             for (let key in this.dps) {
@@ -325,7 +345,7 @@ class TuyaDevice {
         const deviceTopic = this.deviceTopics.hasOwnProperty(stateTopic) ? this.deviceTopics[stateTopic] : ''
 
         if (deviceTopic) {
-            debugCommand('Device '+this.options.id+' received command topic: '+commandTopic+', message: '+command)
+            // debugCommand('Device '+this.options.id+' received command topic: '+commandTopic+', message: '+command)
             let commandResult = this.sendTuyaCommand(command, deviceTopic)
             if (!commandResult) {
                 debugCommand('Command topic '+this.baseTopic+commandTopic+' received invalid value: '+command)
@@ -361,6 +381,24 @@ class TuyaDevice {
             this.set(command)
         }
     }
+
+    processDpsKeyWcidNameCommand(message, subDevDpsKey, cidName) {
+        if (utils.isJsonString(message)) {
+            debugCommand('Individual DPS command topics do not accept JSON values')
+        } else {
+            const dpsMessage = this.parseDpsMessage(message)
+            let subdev = this.config.subDevices.find(el => el.name === cidName);
+            const sdcid = subdev.cid
+            debugCommand('Received command for '+sdcid+' DPS'+subDevDpsKey+': ', message)
+            const command = {
+                dps: subDevDpsKey,
+                set: dpsMessage,
+                cid: sdcid
+            }
+            this.set(command)
+        }
+    }
+
 
     // Parse string message into boolean and number types
     parseDpsMessage(message) {
