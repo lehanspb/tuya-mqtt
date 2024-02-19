@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.1.5]
+### Added
+- Added support of friendly names for the subDevices behind gateway (processDpsKeyWcidNameCommand)
+
+### Changed
+- Functions publishTopics and publishDpsTopics now can publish subDevice's friendly name to MQTT
+
+  
 ## [3.1.0]
 Forked from https://github.com/TheAgentK/tuya-mqtt
 ### Added
