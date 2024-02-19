@@ -31,7 +31,6 @@ async function processExit(exitCode) {
 }
 
 // Get new deivce based on configured type
-// For Tuya Gateway use GenericDevice
 function getDevice(configDevice, mqttClient) {
     const deviceInfo = {
         configDevice: configDevice,
@@ -165,6 +164,11 @@ const main = async() => {
                     case 5:
                         const dpsKey = splitTopic[topicLength-2]
                         device.processDpsKeyCommand(message, dpsKey)
+                        break;
+                    case 6:
+                        const subDevDpsKey = splitTopic[topicLength-2]
+                        const cidName = splitTopic[topicLength-4]
+                        device.processDpsKeyWcidNameCommand(message, subDevDpsKey, cidName)
                         break;
                 }
             }
